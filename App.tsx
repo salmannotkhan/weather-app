@@ -20,6 +20,7 @@ import {
 	useColorScheme,
 	View,
 } from 'react-native';
+import Card from './Card';
 
 interface ConsolidatedWeather {
 	air_pressure: number;
@@ -41,6 +42,9 @@ interface ConsolidatedWeather {
 
 interface Weather {
 	consolidated_weather: ConsolidatedWeather[];
+	title: string;
+	sun_rise: string;
+	sun_set: string;
 }
 
 const App = () => {
@@ -74,85 +78,125 @@ const App = () => {
 				returnKeyType="search"
 			/>
 
-			<ScrollView contentInsetAdjustmentBehavior="automatic">
-				<View>
-					{weather ? (
-						<View style={styles.weatherCard}>
-							<Image
-								source={{
-									uri: `https://www.metaweather.com/static/img/weather/png/${weather.consolidated_weather[0].weather_state_abbr}.png`,
-									height: 64,
-									width: 64,
-								}}
-							/>
-							<Text>{location}</Text>
-							<Text>
-								{weather.consolidated_weather[0].the_temp.toFixed()}
-								&deg; C
-							</Text>
+			<ScrollView
+				automaticallyAdjustContentInsets={true}
+				style={styles.scrollView}>
+				{weather ? (
+					<View style={styles.hero}>
+						<View style={styles.row}>
+							<View>
+								<Image
+									source={{
+										uri: `https://www.metaweather.com/static/img/weather/png/${weather.consolidated_weather[0].weather_state_abbr}.png`,
+										height: 100,
+										width: 100,
+									}}
+								/>
+								<Text style={styles.mainTemp}>
+									{weather.consolidated_weather[0].the_temp.toFixed()}
+									&deg; C
+								</Text>
+								<Text style={styles.title}>
+									{weather.title}
+								</Text>
+							</View>
 							<View>
 								<Text>
+									{
+										weather.consolidated_weather[0]
+											.weather_state_name
+									}
+								</Text>
+								<Text style={styles.temp}>
 									Min:{' '}
 									{weather.consolidated_weather[0].min_temp.toFixed()}
 									&deg; C
 								</Text>
-								<Text>
+								<Text style={styles.temp}>
 									Max:{' '}
 									{weather.consolidated_weather[0].max_temp.toFixed()}
 									&deg; C
 								</Text>
 							</View>
 						</View>
-					) : null}
-					{weather
-						? weather.consolidated_weather.map(entry => (
-								<View key={entry.id} style={styles.weatherCard}>
-									<Image
-										source={{
-											uri: `https://www.metaweather.com/static/img/weather/png/${entry.weather_state_abbr}.png`,
-											height: 64,
-											width: 64,
-										}}
-									/>
-									<Text>
-										{entry.the_temp.toFixed()}
-										&deg; C
-									</Text>
-									<View>
-										<Text>
-											Min: {entry.min_temp.toFixed()}
-											&deg; C
-										</Text>
-										<Text>
-											Max: {entry.max_temp.toFixed()}
-											&deg; C
-										</Text>
-									</View>
-								</View>
-								// eslint-disable-next-line no-mixed-spaces-and-tabs
-						  ))
-						: null}
-				</View>
+						<View style={styles.row}>
+							<View>
+								<Text>
+									Visibility:{' '}
+									{weather.consolidated_weather[0].visibility.toFixed(
+										2,
+									)}
+								</Text>
+								<Text>
+									Wind Speed:{' '}
+									{weather.consolidated_weather[0].wind_speed.toFixed(
+										2,
+									) + ' '}
+									km/h
+								</Text>
+							</View>
+							<View>
+								<Text>
+									Sunrise: {weather.sun_rise.slice(11, 16)}
+								</Text>
+								<Text>
+									Sunset: {weather.sun_set.slice(11, 16)}
+								</Text>
+							</View>
+						</View>
+					</View>
+				) : null}
+				{weather
+					? weather.consolidated_weather.slice(1).map(entry => (
+							<Card
+								key={entry.id}
+								temp={entry.the_temp}
+								minTemp={entry.min_temp}
+								maxTemp={entry.max_temp}
+								weatherState={entry.weather_state_abbr}
+							/>
+							// eslint-disable-next-line no-mixed-spaces-and-tabs
+					  ))
+					: null}
 			</ScrollView>
 		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
+	mainTemp: {
+		marginTop: 10,
+		fontSize: 30,
+	},
+	temp: {
+		textAlign: 'right',
+	},
+	hero: {
+		padding: 40,
+	},
+	row: {
+		flex: 1,
+		padding: 5,
+		display: 'flex',
+		justifyContent: 'space-between',
+		width: '100%',
+		flexDirection: 'row',
+	},
+	main: {
+		display: 'flex',
+	},
+	scrollView: {
+		height: '90%',
+	},
+	title: {
+		fontSize: 30,
+		fontWeight: 'bold',
+	},
 	searchBar: {
 		fontSize: 16,
-		padding: 15,
-		shadowColor: 'black',
-		shadowOpacity: 100,
-		shadowOffset: {width: 15, height: 5},
+		padding: 20,
+		elevation: 1,
 		shadowRadius: 50,
-	},
-	weatherCard: {
-		display: 'flex',
-		flexDirection: 'row',
-		alignItems: 'center',
-		padding: 25,
-		justifyContent: 'space-between',
 	},
 });
 
